@@ -4,11 +4,10 @@ use select::document::Document;
 use select::predicate::Class;
 use serde_json::json;
 use std::error::Error;
-use std::fs;
+use std::{env, fs};
 use tokio::time::{sleep, Duration};
 
 const URL: &str = "https://www.playthroneandliberty.com/en-us/support/server-status";
-const WEBHOOK_URL: &str = "<discord_webhook>";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -66,7 +65,8 @@ async fn send_alert(is_maintenance: bool) -> Result<(), Box<dyn Error>> {
         "avatar_url": "https://dl1f6y24yx1ap.cloudfront.net/statics/2024-09-30/images/apple-touch-icon.png"
     });
 
-    client.post(WEBHOOK_URL).json(&embed).send().await?;
+	let webhook_url = env::var("TLSSA_WEBHOOK_URL").expect("webhook url is not provided");
+    client.post(webhook_url).json(&embed).send().await?;
     Ok(())
 }
 
