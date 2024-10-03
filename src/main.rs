@@ -58,7 +58,7 @@ async fn send_alert(is_maintenance: bool) -> Result<(), Box<dyn Error>> {
             "description": format!("{} Alexia server is now {}!", emoji, status_text),
             "color": color,
             "footer": {
-                "text": "Xưởng Bi-a Văn Quán Hà Đông"
+                "text": "Server Status Alert"
             },
             "timestamp": formatted_time
         }],
