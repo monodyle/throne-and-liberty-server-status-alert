@@ -3,8 +3,7 @@ use reqwest::Client;
 use select::document::Document;
 use select::predicate::Class;
 use serde_json::json;
-use std::error::Error;
-use std::{env, fs};
+use std::{fs, env, error::Error};
 use tokio::time::{sleep, Duration};
 
 const URL: &str = "https://www.playthroneandliberty.com/en-us/support/server-status";
@@ -20,7 +19,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let is_maintenance = is_maintenance(&document);
         let previous_status = read_previous_status()?;
 
-        if is_maintenance != previous_status {
+        if is_maintenance != (previous_status == "0") || previous_status == "-1" {
             send_alert(is_maintenance).await?;
             update_previous_status(is_maintenance)?;
         }
@@ -75,10 +74,10 @@ previous_status.txt
 1 => online
 0 => maintenance
 */
-fn read_previous_status() -> Result<bool, Box<dyn Error>> {
+fn read_previous_status() -> Result<String, Box<dyn Error>> {
     fs::read_to_string(".status")
-        .map(|status| status.trim() == "0")
-        .or_else(|_| Ok(false))
+        .map(|status| status.trim().to_string())
+        .or_else(|_| Ok("-1".to_string()))
 }
 
 fn update_previous_status(is_maintenance: bool) -> Result<(), Box<dyn Error>> {
